@@ -1,15 +1,10 @@
 spack:
-  definitions:
-  - when: platform == 'linux'
-    root: [root@6.22.06+fortran+gdml+pythia6+pythia8+vc~vdt~x~opengl+python+tmva+mlp+xrootd+sqlite+spectrum]
-  - when: platform == 'darwin'
-    root: [root@6.22.06+fortran+gdml+pythia6+pythia8+vc~vdt~x~opengl+python+tmva+mlp+xrootd+sqlite+spectrum+aqua]
   specs:
+  - fairsoft-bundle@21.3
   - pythia6@428-alice1
   - hepmc@2.06.11 length=CM momentum=GEV
   - pythia8@8303
   - geant4@10.7.1~qt~vecgeom~opengl~x11~motif+threads
-  - $root
   - vmc@1-0-p3
   - geant3@3.8
   - vgm@4-8
