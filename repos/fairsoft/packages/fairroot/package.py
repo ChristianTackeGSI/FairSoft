@@ -61,6 +61,7 @@ class Fairroot(CMakePackage):
     patch('support_geant4_with_external_clhep.patch', when='@18.4 +sim ^Geant4@:10.5')
     # https://github.com/FairRootGroup/FairRoot/pull/1038
     patch('drop_cxx_flag_check.patch', when='@18.4.0:18.4.2')
+    patch('my.patch', when='@develop')
 
     def setup_build_environment(self, env):
         super(Fairroot, self).setup_build_environment(env)
@@ -69,6 +70,8 @@ class Fairroot(CMakePackage):
                 '-std=c++%s' % self.spec.variants['cxxstd'].value)
         env.unset('SIMPATH')
         env.unset('FAIRSOFT_ROOT')
+        env.set('SPACK_INCLUDE_DIRS', '', force=True)
+        env.set('SPACK_LINK_DIRS', '', force=True)
 
     def cmake_args(self):
         options = []
@@ -77,7 +80,7 @@ class Fairroot(CMakePackage):
             cxxstd = self.spec.variants['cxxstd'].value
             if cxxstd != 'default':
                options.append('-DCMAKE_CXX_STANDARD={0}'.format(cxxstd))
-        if self.spec.satisfies('@:18,develop'):
+        if self.spec.satisfies('@:18'):
             options.append('-DROOTSYS={0}'.format(self.spec['root'].prefix))
             options.append('-DPYTHIA8_DIR={0}'.format(
                 self.spec['pythia8'].prefix))
@@ -89,6 +92,14 @@ class Fairroot(CMakePackage):
             options.append('-DBoost_NO_BOOST_CMAKE=ON')
 
         return options
+
+    def install(self, spec, prefix):
+        super(Fairroot, self).install(spec, prefix)
+
+        if self.spec.satisfies('@18.2.1: +examples'):
+            with working_dir(self.build_directory):
+                # "CTEST_OUTPUT_ON_FAILURE=1" has too much UTF8/etc...
+                make("test", parallel=False)
 
     def common_env_setup(self, env):
         # So that root finds the shared library / rootmap
